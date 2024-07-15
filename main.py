@@ -1,9 +1,32 @@
-import tkinter as tk
+from tkinter import Tk
+from Bibliotecagui import BibliotecaGUI
 from Sistema import Sistema
-from gui import BibliotecaGUI
+from BibliotecaDAO import BibliotecaDAO
+
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'tu_contraseña',
+    'database': 'tu_base_de_datos'
+}
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    try:
+        dao = BibliotecaDAO(db_config)
+        create_table_sql = """
+        CREATE TABLE IF NOT EXISTS libros (
+            codigo VARCHAR(255) PRIMARY KEY,
+            titulo VARCHAR(255) NOT NULL,
+            autor VARCHAR(255) NOT NULL,
+            stock INT NOT NULL
+        )
+        """
+        dao.create_table(create_table_sql)
+    except Exception as e:
+        print(f"No se pudo conectar a la base de datos: {e}")
+        dao = None
+
     sistema = Sistema()
-    gui = BibliotecaGUI(root, sistema)
+    root = Tk()
+    app = BibliotecaGUI(root, sistema)
     root.mainloop()
