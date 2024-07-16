@@ -57,13 +57,14 @@ class BibliotecaGUI:
             self.menu.add_cascade(label="Préstamos", menu=self.prestamos_menu)
             self.prestamos_menu.add_command(label="Realizar Préstamo", command=self.realizar_prestamo)
             self.prestamos_menu.add_command(label="Devolver Libro", command=self.devolver_libro)
-        
+            self.prestamos_menu.add_command(label="Pagar Multa", command=self.pagar_multa_docente)
+
         elif self.tipo_usuario == "Estudiante":
             self.prestamos_menu = tk.Menu(self.menu, tearoff=0)
             self.menu.add_cascade(label="Préstamos", menu=self.prestamos_menu)
             self.prestamos_menu.add_command(label="Realizar Préstamo", command=self.realizar_prestamo)
             self.prestamos_menu.add_command(label="Devolver Libro", command=self.devolver_libro)
-            self.prestamos_menu.add_command(label="Pagar Multa", command=self.pagar_multa)
+            self.prestamos_menu.add_command(label="Pagar Multa", command=self.pagar_multa_estudiante)
 
     def agregar_libro(self):
         self.limpiar_frame()
@@ -197,6 +198,52 @@ class BibliotecaGUI:
     def pago_multa(self, rut):
         self.sistema.registrar_pago_multa(rut)
         messagebox.showinfo("Éxito", "Pago de multa registrado exitosamente")
+        self.limpiar_frame()
+
+    def pagar_multa_estudiante(self):
+        self.limpiar_frame()
+        tk.Label(self.frame_contenido, text="Pagar Multa", font=("Arial", 14)).grid(row=0, columnspan=2, pady=10)
+
+        tk.Label(self.frame_contenido, text="RUT:", font=("Arial", 12)).grid(row=1, column=0, sticky='e')
+        tk.Label(self.frame_contenido, text="Monto a Pagar:", font=("Arial", 12)).grid(row=2, column=0, sticky='e')
+
+        rut = tk.Entry(self.frame_contenido, width=30)
+        monto_pagar = tk.Entry(self.frame_contenido, width=30)
+
+        rut.grid(row=1, column=1)
+        monto_pagar.grid(row=2, column=1)
+
+        tk.Button(self.frame_contenido, text="Pagar", command=lambda: self.pagar_multa_estudiante_accion(rut.get(), monto_pagar.get()), width=15).grid(row=3, columnspan=2, pady=10)
+
+    def pagar_multa_estudiante_accion(self, rut, monto_pagar):
+        exito = self.sistema.pagar_multa(rut, int(monto_pagar))
+        if exito:
+            messagebox.showinfo("Éxito", "Multa pagada exitosamente")
+        else:
+            messagebox.showwarning("Error", "No se pudo pagar la multa")
+        self.limpiar_frame()
+
+    def pagar_multa_docente(self):
+        self.limpiar_frame()
+        tk.Label(self.frame_contenido, text="Pagar Multa", font=("Arial", 14)).grid(row=0, columnspan=2, pady=10)
+
+        tk.Label(self.frame_contenido, text="RUT:", font=("Arial", 12)).grid(row=1, column=0, sticky='e')
+        tk.Label(self.frame_contenido, text="Monto a Pagar:", font=("Arial", 12)).grid(row=2, column=0, sticky='e')
+
+        rut = tk.Entry(self.frame_contenido, width=30)
+        monto_pagar = tk.Entry(self.frame_contenido, width=30)
+
+        rut.grid(row=1, column=1)
+        monto_pagar.grid(row=2, column=1)
+
+        tk.Button(self.frame_contenido, text="Pagar", command=lambda: self.pagar_multa_docente_accion(rut.get(), monto_pagar.get()), width=15).grid(row=3, columnspan=2, pady=10)
+
+    def pagar_multa_docente_accion(self, rut, monto_pagar):
+        exito = self.sistema.pagar_multa(rut, int(monto_pagar))
+        if exito:
+            messagebox.showinfo("Éxito", "Multa pagada exitosamente")
+        else:
+            messagebox.showwarning("Error", "No se pudo pagar la multa")
         self.limpiar_frame()
 
     def modificar_stock(self):

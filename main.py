@@ -6,8 +6,7 @@ from BibliotecaDAO import BibliotecaDAO
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'tu_contraseña',
-    'database': 'tu_base_de_datos'
+    'database': 'cun102652_UniLibros'
 }
 
 if __name__ == "__main__":

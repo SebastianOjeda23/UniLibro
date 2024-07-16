@@ -5,7 +5,8 @@ class BibliotecaDAO:
     def __init__(self, db_config):
         """ Inicializa el DAO con la conexión a la base de datos """
         self.connection = self.create_connection(db_config)
-    
+        self.create_tables()  # Crear las tablas al iniciar
+
     def create_connection(self, db_config):
         """ Crea una conexión a la base de datos MySQL """
         try:
@@ -16,6 +17,27 @@ class BibliotecaDAO:
         except Error as e:
             print(f"Error al conectar a la base de datos: {e}")
             return None
+
+    def create_tables(self):
+        """ Crea las tablas usuarios y deudores si no existen """
+        create_usuarios_table = '''
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                tipo VARCHAR(50) NOT NULL,
+                nombre VARCHAR(100) NOT NULL,
+                rut VARCHAR(20) UNIQUE NOT NULL,
+                contacto VARCHAR(50) NOT NULL
+            )
+        '''
+        create_deudores_table = '''
+            CREATE TABLE IF NOT EXISTS deudores (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                rut_usuario VARCHAR(20) UNIQUE NOT NULL,
+                FOREIGN KEY (rut_usuario) REFERENCES usuarios(rut)
+            )
+        '''
+        self.create_table(create_usuarios_table)
+        self.create_table(create_deudores_table)
 
     def create_table(self, create_table_sql):
         """ Crea una tabla usando la sentencia SQL pasada como argumento """
@@ -73,3 +95,39 @@ class BibliotecaDAO:
             print("Libro eliminado exitosamente.")
         except Error as e:
             print(f"Error al eliminar el libro: {e}")
+
+    def insert_usuario(self, usuario):
+        """ Inserta un usuario en la tabla de usuarios """
+        sql = ''' INSERT INTO usuarios(tipo, nombre, rut, contacto)
+                  VALUES(%s, %s, %s, %s) '''
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(sql, usuario)
+            self.connection.commit()
+            print("Usuario registrado exitosamente.")
+        except Error as e:
+            print(f"Error al insertar usuario: {e}")
+
+    def registrar_deudor(self, rut_usuario):
+        """ Registra un usuario como deudor en la tabla de deudores """
+        sql = ''' INSERT INTO deudores(rut_usuario)
+                  VALUES(%s) '''
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(sql, (rut_usuario,))
+            self.connection.commit()
+            print("Usuario registrado como deudor exitosamente.")
+        except Error as e:
+            print(f"Error al registrar deudor: {e}")
+
+    def buscar_usuario_por_rut(self, rut):
+        """ Busca un usuario por su rut """
+        sql = ''' SELECT * FROM usuarios WHERE rut=%s '''
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(sql, (rut,))
+            usuario = cursor.fetchone()
+            return usuario
+        except Error as e:
+            print(f"Error al buscar usuario por rut: {e}")
+            return None
